@@ -75,7 +75,7 @@ export class OrgUserService {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map(delegatedAccounts => {
         delegatedAccounts = delegatedAccounts.map((delegatedAccount) => {
-          return this.dataTransformService.unflatten(delegatedAccount)
+          return this.dataTransformService.unflatten(delegatedAccount);
         });
 
         return delegatedAccounts;

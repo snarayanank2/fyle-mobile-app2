@@ -195,7 +195,7 @@ export class SignupDetailsEnterprisePage implements OnInit {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       this.currentState = this.PageStates.secondForm;
-      // TODO: Add when Tracking is added 
+      // TODO: Add when Tracking is added
       // rasing event called choose persona with persona details that the user filled up in last form
       // TrackingService.onChosingPersona({Asset: 'Mobile', Persona: 'Enterprise'});
       // // setting up company details in clevertap profile

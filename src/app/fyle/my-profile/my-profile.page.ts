@@ -1,4 +1,4 @@
-// TODO list: 
+// TODO list:
 // Lite account
 // Contact no verfication
 // Notification popup
@@ -96,7 +96,7 @@ export class MyProfilePage implements OnInit {
     this.toggleCurrencySettings();
   }
 
-  async openCurrenySelectionModal(event) {
+  async openCurrenySelectionModal() {
     const modal = await this.modalController.create({
       component: SelectCurrencyComponent
     });

@@ -30,7 +30,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     const isBulkFyleEnabled = this.orgUserSettings ? this.orgUserSettings.bulk_fyle_settings.enabled : false;
     this.ctaList = [];
 
-    if(this.canCreateExpense) {
+    if (this.canCreateExpense) {
       let isPerDiemEnabled = false;
       let isMileageEnabled = false;
       if (this.orgSettings && this.orgSettings.per_diem && this.orgSettings.per_diem.enabled) {
@@ -42,7 +42,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         isMileageEnabled = true;
       }
 
-      let buttonList = {
+      const buttonList = {
         addPerDiem: {
           name: 'Add Per Diem',
           icon: 'add-per-diem',
@@ -91,7 +91,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
         }
       }
     } else {
-      var cannotFyleExpenseCTA = {
+      const cannotFyleExpenseCTA = {
         reports: {
           name: 'Create new report',
           icon: 'add-report',
@@ -108,9 +108,9 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
           type: 'advance'
         }
       };
-      this.ctaList = this.dashboardList.filter(function (element) {
+      this.ctaList = this.dashboardList.filter(function(element) {
         return (!element.isCollapsed && cannotFyleExpenseCTA[element.title]);
-      }).map(function (element) {
+      }).map(function(element) {
         return cannotFyleExpenseCTA[element.title];
       });
     }
@@ -121,7 +121,7 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
       header: 'Coming soon',
-      message: "Redirecting to -> " + msg,
+      message: 'Redirecting to -> ' + msg,
       buttons: ['Close']
     });
 
@@ -133,15 +133,15 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
     this.presentAlert(item.type);
   }
 
-  reset (state: string) {
-    this.canCreateExpense= this.dashboardList.some(function (element) {
+  reset(state: string) {
+    this.canCreateExpense = this.dashboardList.some(function(element) {
       if (state === 'default') {
         return true;
       } else {
         return (!element.isCollapsed && (element.title === 'expenses' || element.title === 'corporate cards'));
       }
-      
-    });    
+
+    });
     this.setIconList();
   }
 
@@ -159,12 +159,12 @@ export class EnterpriseDashboardFooterComponent implements OnInit {
       this.orgUserSettings = res.orgUserSettings$;
       this.orgSettings = res.orgSettings$;
       this.setIconList();
-    })
+    });
 
-    this.dashboardService.getDashBoardState().subscribe((state)=> {
+    this.dashboardService.getDashBoardState().subscribe((state) => {
       this.reset(state);
-    })
-   
+    });
+
   }
 
 }

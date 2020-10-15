@@ -148,7 +148,7 @@
 
       <div class="trip-request--card" matRipple *ngIf="transportationRequests$|async as transportationRequests">
         <div class="trip-request--element trip-request--element__single"
-          (click)="openTransportationRequests(transportationRequests)">
+          (click)="openTransportationRequests()">
           <div class="trip-request--element-label">
             Transportation
           </div>
@@ -159,7 +159,7 @@
       </div>
 
       <div class="trip-request--card" matRipple *ngIf="hotelRequests$|async as hotelRequests">
-        <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests(hotelRequests)">
+        <div class="trip-request--element trip-request--element__single" (click)="openHotelRequests()">
           <div class="trip-request--element-label">
             Hotel
           </div>
@@ -171,7 +171,7 @@
 
       <div class="trip-request--card" matRipple>
         <div class="trip-request--element trip-request--element__single"
-          *ngIf="transformedAdvanceRequests$|async as advanceRequests" (click)="openAdvanceRequests(advanceRequests)">
+          *ngIf="transformedAdvanceRequests$|async as advanceRequests" (click)="openAdvanceRequests()">
           <div class="trip-request--element-label">
             Advance
           </div>

@@ -22,7 +22,7 @@ export class AdvanceRequestService {
   ) { }
 
   getUserAdvanceRequestParams(state: string) {
-    var stateMap = {
+    const stateMap = {
       draft: {
         state: ['DRAFT'],
         is_sent_back: false
@@ -163,7 +163,7 @@ export class AdvanceRequestService {
     return data;
   }
 
-  getInternalStateAndDisplayName (advanceRequest: ExtendedAdvanceRequest): { state: string, name: string } {
+  getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string, name: string } {
     if (advanceRequest.areq_state === 'DRAFT') {
       if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
         return {

@@ -8,17 +8,17 @@ export class OneClickActionService {
   constructor() { }
 
   oneClickActionOptions = [
-    { 
-      id: 'insta_fyle', 
+    {
+      id: 'insta_fyle',
       name: 'Insta fyle'
     },
-    { 
-      id: 'mileage', 
+    {
+      id: 'mileage',
       name: 'Mileage'
     }
   ];
 
-  getAllOneClickActionOptions () {
+  getAllOneClickActionOptions() {
     return this.oneClickActionOptions;
   }
 

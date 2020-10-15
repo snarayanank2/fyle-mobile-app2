@@ -17,6 +17,7 @@ import { PopupComponent } from './popup/popup.component';
 export class NewPasswordPage implements OnInit {
 
   fg: FormGroup;
+  hide;
 
   lengthValidationDisplay$: Observable<boolean>;
   uppercaseValidationDisplay$: Observable<boolean>;

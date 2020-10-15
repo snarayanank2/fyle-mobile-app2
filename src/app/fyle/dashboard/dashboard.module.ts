@@ -24,7 +24,7 @@ import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
   ],
   declarations: [DashboardPage, EnterpriseDashboardCardComponent, EnterpriseDashboardFooterComponent],
   providers: [
-  	DashboardService
+    DashboardService
   ]
 })
 export class DashboardPageModule {}

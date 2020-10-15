@@ -16,7 +16,7 @@ export class CorporateCreditCardExpenseService {
     private apiService: ApiService
   ) { }
 
-  getPaginatedECorporateCreditCardExpenseStats = function (params) {
+  getPaginatedECorporateCreditCardExpenseStats = function(params) {
     return this.apiService.get('/extended_corporate_credit_card_expenses/stats', {params});
   };
 }

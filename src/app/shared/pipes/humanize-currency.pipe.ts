@@ -6,17 +6,17 @@ import { getCurrencySymbol } from '@angular/common';
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
 
-  transform (amount: number, currencyCode: string, fraction: number): any {
-    var sign = amount < 0 ? '-':'';
-    var amount = Math.abs(amount) || 0;
-    var si = ['', 'K', 'M', 'G', 'T', 'P', 'H'];
-    var exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
-    var result = amount / Math.pow(1000, exp);
-    var fixedResult;
+  transform(amt: number, currencyCode: string, fraction: number): any {
+    let sign = amt < 0 ? '-' : '';
+    let amount = Math.abs(amt) || 0;
+    let si = ['', 'K', 'M', 'G', 'T', 'P', 'H'];
+    let exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
+    let result = amount / Math.pow(1000, exp);
+    let fixedResult;
 
-    var currency = getCurrencySymbol(currencyCode, 'wide' , 'en');
+    let currency = getCurrencySymbol(currencyCode, 'wide' , 'en');
     if (currency) {
-      var fractionSize = fraction;
+      let fractionSize = fraction;
       if (fractionSize) {
         fixedResult = result.toFixed(fraction);
       } else {

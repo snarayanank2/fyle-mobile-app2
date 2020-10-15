@@ -147,12 +147,12 @@ export class MyViewReportPage implements OnInit {
           handler: () => {
             from(this.loaderService.showLoader()).pipe(
               switchMap(() => {
-                return this.reportService.delete(this.activatedRoute.snapshot.params.id)
+                return this.reportService.delete(this.activatedRoute.snapshot.params.id);
               }),
               finalize(() => from(this.loaderService.hideLoader()))
             ).subscribe(() => {
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            });
           }
         }
       ]

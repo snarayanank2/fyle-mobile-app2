@@ -25,7 +25,7 @@ export class CurrencyService {
       );
   }
 
- 
+
 
   getAll() {
     return from(this.authService.getEou())
@@ -62,7 +62,7 @@ export class CurrencyService {
       map((res) => {
         return this.getCurrenyList(res);
       })
-    )
+    );
   }
 }
 

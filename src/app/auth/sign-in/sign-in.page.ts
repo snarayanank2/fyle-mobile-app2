@@ -20,6 +20,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 export class SignInPage implements OnInit {
   fg: FormGroup;
   emailSet = false;
+  hide;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,10 +34,10 @@ export class SignInPage implements OnInit {
     private inAppBrowser: InAppBrowser
   ) { }
 
-  checkSAMLResponseAndSignInUser = function (data) {
+  checkSAMLResponseAndSignInUser = function(data) {
     if (data.error) {
-      let err = {
-        status: parseInt(data.response_status_code)
+      const err = {
+        status: parseInt(data.response_status_code, 10)
       };
 
       this.handleError(err);

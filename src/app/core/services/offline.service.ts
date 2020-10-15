@@ -320,7 +320,7 @@ export class OfflineService {
               map(
                 data => data as Org[]
               )
-            )
+            );
           }
         }
       )

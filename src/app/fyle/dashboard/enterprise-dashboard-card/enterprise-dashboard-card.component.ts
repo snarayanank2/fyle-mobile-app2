@@ -42,7 +42,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   isBlank(item) {
     return ((item === '') || (item === null)) ? {} : item;
-  };
+  }
 
   getExpensesExpandedDetails() {
     const readyToReportStats$ = this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all'));
@@ -129,7 +129,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         res.approvedStats.title = 'Approved';
         res.approvedStats.state = 'APPROVED';
 
-        let stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
+        const stats = [res.draftStats, res.inquiryStats, res.reportedStats, res.approvedStats];
         return stats;
       })
     );
@@ -162,7 +162,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.pendingStats];
         return stats;
       })
-    )
+    );
   }
 
   getTripsExpandedDetails() {
@@ -197,7 +197,7 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res.draftStats, res.inquiryStats, res.submitted, res.toCloseStats];
         return stats;
       })
-    )
+    );
   }
 
   getCCCEExpandedDetails() {
@@ -213,15 +213,15 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         const stats = [res];
         return stats;
       })
-    )
+    );
   }
 
 
   getExpandedDetails(title) {
     title = title.replace(' ', '_');
-    let expandedCardDetailsMap = {
+    const expandedCardDetailsMap = {
       expenses: this.getExpensesExpandedDetails,
-      reports: this.getReportsExpandedDetails, //change this later
+      reports: this.getReportsExpandedDetails, // change this later
       advances: this.getAdvancesExpandedDetails,
       trips: this.getTripsExpandedDetails,
       corporate_cards: this.getCCCEExpandedDetails
@@ -263,14 +263,14 @@ export class EnterpriseDashboardCardComponent implements OnInit {
         this.detailedStats = res;
         this.mobileEventService.dashboardCardExpanded();
         this.dashboardService.setDashBoardState(this.item.title);
-      })
+      });
     }
   }
 
   getHomeCurrency() {
     // get home currency from homeCurrency service later
     this.homeCurrency = 'INR';
-  };
+  }
 
   getExpenseNeedAttentionStats() {
     const policyFlaggedCount$ = this.transactionService.getPaginatedETxncCount(this.transactionService.getUserTransactionParams('flagged'));
@@ -290,15 +290,15 @@ export class EnterpriseDashboardCardComponent implements OnInit {
 
   getReportNeedAttentionStats() {
     return this.reportService.getPaginatedERptcCount({ state: 'APPROVER_INQUIRY' });
-  };
+  }
 
   getAdvanceNeedAttentionStats() {
     return this.advanceRequestService.getPaginatedMyEAdvanceRequestsCount(this.advanceRequestService.getUserAdvanceRequestParams('inquiry'));
-  };
+  }
 
   getTripNeedAttentionStats() {
     return this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('inquiry'));
-  };
+  }
 
 
 
@@ -307,14 +307,14 @@ export class EnterpriseDashboardCardComponent implements OnInit {
       if (this.dashboardList[this.index].title === 'corporate cards') {
         this.needsAttentionStats.count = stats && stats.total_count;
       } else {
-        let countMap = {
+        const countMap = {
           expenses: this.getExpenseNeedAttentionStats(),
           reports: this.getReportNeedAttentionStats(),
           advances: this.getAdvanceNeedAttentionStats(),
           trips: this.getTripNeedAttentionStats()
-        }
+        };
 
-        let count$ = countMap[this.dashboardList[this.index].title];
+        const count$ = countMap[this.dashboardList[this.index].title];
 
         count$.subscribe((res) => {
           if (this.dashboardList[this.index].title === 'expenses') {
@@ -322,35 +322,35 @@ export class EnterpriseDashboardCardComponent implements OnInit {
           } else {
             this.needsAttentionStats.count = res.count;
           }
-        })
+        });
       }
     }
-  };
+  }
 
   async getStats() {
     if (this.dashboardList && this.dashboardList[this.index]) {
       // await this.loaderService.showLoader();
       this.dashboardList[this.index].isLoading = true;
-      var title = this.dashboardList[this.index].title.replace(' ', '_');
+      const title = this.dashboardList[this.index].title.replace(' ', '_');
 
-      var statsMap = {
+      const statsMap = {
         expenses: this.transactionService.getPaginatedETxncStats(this.transactionService.getUserTransactionParams('all')),
         reports: this.reportService.getPaginatedERptcStats(this.reportService.getUserReportParams('pending')),
         advances: this.advanceRequestService.getPaginatedEAdvanceRequestsStats(this.advanceRequestService.getUserAdvanceRequestParams('pending')),
         trips: this.tripRequestsService.getPaginatedMyETripRequestsCount(this.tripRequestsService.getUserTripRequestStateParams('submitted')),
         corporate_cards: this.corporateCreditCardExpenseService.getPaginatedECorporateCreditCardExpenseStats({ state: 'INITIALIZED' })
-      }
+      };
 
-      var stats$ = statsMap[title].pipe(
+      const stats$ = statsMap[title].pipe(
         finalize(async () => {
-          //await this.loaderService.hideLoader();
+          // await this.loaderService.hideLoader();
         })
-      )
+      );
 
       stats$.subscribe((res) => {
         this.stats = res;
         this.getNeedAttentionCount(this.stats);
-      })
+      });
     }
   }
 
