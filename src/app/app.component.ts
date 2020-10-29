@@ -195,7 +195,7 @@ export class AppComponent implements OnInit {
           title: 'Corporate Cards',
           isVisible: orgSettings.corporate_credit_card_settings.enabled,
           icon: 'fy-cards-new',
-          route: ['/', 'enterprise', 'my_dashboard6']
+          route: ['/', 'enterprise', 'corporate_credit_card']
         },
         {
           title: 'Receipts',

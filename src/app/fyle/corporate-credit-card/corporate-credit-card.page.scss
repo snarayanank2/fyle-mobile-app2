@@ -1,0 +1,28 @@
+$tab: #0077ee;
+
+.corporate-card {
+  
+  &--content {
+    padding: 10px;
+  }
+
+  &--tab-view {
+    border: 1px solid $tab;
+    border-radius: 8px;
+
+    &_tab {
+      border-right: 1px solid $tab;
+      width: auto;
+      text-align: center;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
+
+  &--selected-tab {
+    background-color: $tab;
+    color: white;
+  }
+}

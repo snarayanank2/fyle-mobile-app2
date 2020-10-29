@@ -85,6 +85,10 @@ const routes: Routes = [
   {
     path: 'my_view_mileage',
     loadChildren: () => import('./my-view-mileage/my-view-mileage.module').then( m => m.MyViewMileagePageModule)
+  },
+  {
+    path: 'corporate_credit_card',
+    loadChildren: () => import('./corporate-credit-card/corporate-credit-card.module').then( m => m.CorporateCreditCardPageModule)
   }
 ];
 

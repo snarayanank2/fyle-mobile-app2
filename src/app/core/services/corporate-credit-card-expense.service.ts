@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
-import { switchMap, tap } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { ApiV2Service } from './api-v2.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +8,23 @@ import { from } from 'rxjs';
 export class CorporateCreditCardExpenseService {
 
   constructor(
-    private networkService: NetworkService,
-    private storageService: StorageService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private apiV2Service: ApiV2Service
   ) { }
 
-  getPaginatedECorporateCreditCardExpenseStats = function (params) {
+  getPaginatedECorporateCreditCardExpenseStats(params) {
     return this.apiService.get('/extended_corporate_credit_card_expenses/stats', {params});
-  };
+  }
+
+  getMyEcccec() {
+    // return this.apiV2Service.get('/extended_corporate_credit_card_expenses').pipe(
+
+    // )
+    // return APIService.get('/extended_corporate_credit_card_expenses').then(function (expenses) {
+    //   return ExtendedCCCECollection.parseRaw(expenses);
+    // }, function (err) {
+    //   console.log(err);
+    // });
+  }
+
 }

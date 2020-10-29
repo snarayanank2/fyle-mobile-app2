@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar mode="md">
+    <ion-buttons mode="md" slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      Corporate Card Expenses
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="corporate-card--content" >
+    <ion-segment value="new" mode="md" class="corporate-card--tab-view">
+      <ion-segment-button value="new" class="corporate-card--tab-view_tab corporate-card--selected-tab corporate-card--first-tab">
+        New(0)
+      </ion-segment-button>
+      <ion-segment-button value="inProgress" class="corporate-card--tab-view_tab">
+        In Progress(0)
+      </ion-segment-button>
+      <ion-segment-button value="settled" class="corporate-card--tab-view_tab corporate-card--last-tab">
+        Settled(0)
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+</ion-content>

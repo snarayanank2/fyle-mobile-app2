@@ -25,6 +25,10 @@ const routes: Routes = [
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle-routing.module').then(m => m.FyleRoutingModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'corporate-credit-card',
+    loadChildren: () => import('./core/services/corporate-credit-card/corporate-credit-card.module').then( m => m.CorporateCreditCardPageModule)
   }
 ];
 
