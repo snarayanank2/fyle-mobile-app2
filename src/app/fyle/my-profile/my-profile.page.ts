@@ -4,8 +4,8 @@
 
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { concatMap, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { ModalController, ToastController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -21,6 +21,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -44,7 +45,9 @@ export class MyProfilePage implements OnInit {
     outlook: number;
     email: number;
     web: number;
-  }>
+  }>;
+  isMobileChanged: boolean;
+  isMobileCountryCodeNotPresent: boolean;
 
   constructor(
     private authService: AuthService,
@@ -57,7 +60,9 @@ export class MyProfilePage implements OnInit {
     private userEventService: UserEventService,
     private storageService: StorageService,
     private deviceService: DeviceService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private toastController: ToastController,
+    private orgUserService: OrgUserService
   ) { }
 
   logOut() {
@@ -80,6 +85,45 @@ export class MyProfilePage implements OnInit {
 
   toggleUsageDetails() {
     this.toggleUsageDetailsTab = !this.toggleUsageDetailsTab;
+  }
+
+  onMobileNumberChanged(eou) {
+    this.isMobileChanged = true;
+    if (eou.ou.mobile && eou.ou.mobile.charAt(0) !== '+') {
+      this.isMobileCountryCodeNotPresent = true;
+    } else {
+      this.isMobileCountryCodeNotPresent = false;
+    }
+
+  }
+
+  saveUserProfile(eou) {
+    if (eou.ou.mobile && eou.ou.mobile.charAt(0) !== '+') {
+      this.presentToast();
+    } else {
+      forkJoin({
+        userSettings: this.orgUserService.postUser(eou.us),
+        orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
+      }).pipe(
+        concatMap(() => {
+          return this.authService.refreshEou().pipe(
+            map(() => {
+              this.isMobileChanged = false;
+              this.loaderService.showLoader('Profile saved successfully', 1000);
+              this.ionViewWillEnter();
+            })
+          );
+        })
+      ).subscribe(noop);
+    }
+  }
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Please enter a valid number with country code. eg. +1XXXXXXXXXX, +91XXXXXXXXXX',
+      duration: 2000
+    });
+    toast.present();
   }
 
   setMyExpensesCountBySource(myETxnc) {

@@ -14,7 +14,7 @@
     <span class="my-profile--blocks-header">
       About You
     </span>
-    <ng-container *ngIf="eou$|async as eou">
+    <div *ngIf="eou$|async as eou">
       <div class="my-profile--card">
         <div class="my-profile--name my-profile--card-item">
           <div class="my-profile--name-label">
@@ -37,9 +37,11 @@
         <div class="my-profile--mobile my-profile--card-item">
           <div class="my-profile--mobile-label">
             Mobile
+            <span *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged">(unverified)</span>
+            <span *ngIf="isMobileCountryCodeNotPresent">with country code</span>
           </div>
           <div class="my-profile--mobile-value">
-            {{eou.ou.mobile}}
+            <input [(ngModel)]="eou.ou.mobile" type="tel" matInput placeholder="e.g +91 91XX XX XXX" (ngModelChange)="onMobileNumberChanged(eou)">
           </div>
         </div>
 
@@ -52,8 +54,17 @@
           </div>
         </div>
       </div>
-    </ng-container>
+
+      <ion-button *ngIf="eou.ou.mobile && !eou.ou.mobile_verified && !isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary">
+        VERIFY MOBILE
+      </ion-button>
+      <ion-button *ngIf="isMobileChanged" class="my-profile--primary-cta" fill="solid" color="fyle-primary" (click)="saveUserProfile(eou)">
+        SAVE
+      </ion-button>
+    </div>
   </div>
+
+  
 
   <div class="my-profile--blocks">
     <span class="my-profile--blocks-header">Notifications</span>
