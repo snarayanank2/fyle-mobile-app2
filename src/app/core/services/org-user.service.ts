@@ -143,4 +143,11 @@ export class OrgUserService {
     return !!accessToken.proxy_org_user_id;
   }
 
+  verifyMobile() {
+    return this.apiService.post('/orgusers/verify_mobile');
+  };
+
+  checkMobileVerificationCode(otp) {
+    return this.apiService.post('/orgusers/check_mobile_verification_code', otp);
+  };
 }

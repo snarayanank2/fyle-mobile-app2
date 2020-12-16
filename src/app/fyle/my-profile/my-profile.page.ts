@@ -1,11 +1,10 @@
 // TODO list: 
 // Lite account
-// Contact no verfication
 
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, from, noop, Observable } from 'rxjs';
-import { concatMap, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
-import { ModalController, ToastController } from '@ionic/angular';
+import { forkJoin, from, noop, Observable, throwError, of } from 'rxjs';
+import { concatMap, finalize, map, shareReplay, switchMap, take, catchError } from 'rxjs/operators';
+import { ModalController, ToastController, PopoverController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -22,6 +21,10 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OtpPopoverComponent } from './otp-popover/otp-popover.component';
+import { Plugins } from '@capacitor/core';
+
+const { Browser } = Plugins;
 
 @Component({
   selector: 'app-my-profile',
@@ -48,6 +51,10 @@ export class MyProfilePage implements OnInit {
   }>;
   isMobileChanged: boolean;
   isMobileCountryCodeNotPresent: boolean;
+  showInvalidMobileFormat: boolean;
+  isApiCallInProgress = false;
+  mobileNumber: string;
+  org$: Observable<any>;
 
   constructor(
     private authService: AuthService,
@@ -62,7 +69,8 @@ export class MyProfilePage implements OnInit {
     private deviceService: DeviceService,
     private loaderService: LoaderService,
     private toastController: ToastController,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private popoverController: PopoverController
   ) { }
 
   logOut() {
@@ -89,7 +97,7 @@ export class MyProfilePage implements OnInit {
 
   onMobileNumberChanged(eou) {
     this.isMobileChanged = true;
-    if (eou.ou.mobile && eou.ou.mobile.charAt(0) !== '+') {
+    if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
       this.isMobileCountryCodeNotPresent = true;
     } else {
       this.isMobileCountryCodeNotPresent = false;
@@ -98,9 +106,12 @@ export class MyProfilePage implements OnInit {
   }
 
   saveUserProfile(eou) {
-    if (eou.ou.mobile && eou.ou.mobile.charAt(0) !== '+') {
+    if (this.mobileNumber && this.mobileNumber.charAt(0) !== '+') {
       this.presentToast();
     } else {
+      if (this.isMobileChanged) {
+        eou.ou.mobile = this.mobileNumber;
+      }
       forkJoin({
         userSettings: this.orgUserService.postUser(eou.us),
         orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
@@ -110,7 +121,7 @@ export class MyProfilePage implements OnInit {
             map(() => {
               this.isMobileChanged = false;
               this.loaderService.showLoader('Profile saved successfully', 1000);
-              this.ionViewWillEnter();
+              this.reset();
             })
           );
         })
@@ -243,6 +254,10 @@ export class MyProfilePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.reset();
+  }
+
+  reset() {
     this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
       shareReplay()
@@ -250,6 +265,8 @@ export class MyProfilePage implements OnInit {
     this.myETxnc$ = this.transactionService.getAllMyETxnc().pipe(
       map(etxnc => this.setMyExpensesCountBySource(etxnc))
     );
+
+    this.org$ = this.offlineService.getCurrentOrg();
 
     this.preferredCurrency$ = orgUserSettings$.pipe(
       switchMap((orgUserSettings) => {
@@ -282,8 +299,64 @@ export class MyProfilePage implements OnInit {
       this.orgUserSettings = res.orgUserSettings;
       this.orgSettings = res.orgSettings;
       this.oneClickActionOptions = this.oneClickActionService.getAllOneClickActionOptions();
+      this.mobileNumber = res.eou.ou.mobile;
     });
   }
+
+  openOtpPopover() {
+    const that = this;
+    that.eou$.pipe(
+      switchMap(eou => {
+        if (that.mobileNumber && that.mobileNumber.charAt(0) !== '+') {
+          return throwError({
+            type: 'plusMissingError'
+          });
+        } else {
+          that.isApiCallInProgress = true;
+          return that.orgUserService.verifyMobile();
+        }
+      }),
+      switchMap((resp) => {
+        return of(that.popoverController.create({
+          componentProps: {
+            phoneNumber: that.mobileNumber
+          },
+          component: OtpPopoverComponent,
+          cssClass: 'dialog-popover'
+        }).then(popOver => {
+          return popOver.present();
+        }));
+      }),
+      catchError((error) => {
+        if (error.type === 'plusMissingError') {
+          that.showInvalidMobileFormat = true;
+          setTimeout(() => {
+            that.showInvalidMobileFormat = false;
+          }, 5000);
+        } else {
+          that.loaderService.showLoader(error.data.message, 2000);
+        }
+        return of(null);
+      }),
+      finalize(() => that.isApiCallInProgress = false)
+    ).subscribe(() => {
+      that.reset();
+    })
+  };
+
+  openWebAppLink(location) {
+    let link;
+    if (location === 'app') {
+      link = 'https://in1.fylehq.com/';
+    } else if (location === 'whatsapp') {
+      link = 'https://www.fylehq.com/help/en/articles/3432961-create-expense-using-whatsapp';
+    } else if (location === 'sms') {
+      link = 'https://www.fylehq.com/help/en/articles/3524059-create-expense-via-sms';
+    }
+
+    Browser.open({ toolbarColor: '#f36', url: link });
+
+  };
 
   ngOnInit() {
   }
