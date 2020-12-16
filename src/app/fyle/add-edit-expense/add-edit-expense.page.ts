@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import { Observable, of, iif, forkJoin, from, combineLatest, throwError, noop, concat } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -26,7 +26,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import * as _ from 'lodash';
 import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, NavController } from '@ionic/angular';
 import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -89,7 +89,10 @@ export class AddEditExpensePage implements OnInit {
   newExpenseDataUrls = [];
   focusState = false;
   isConnected$: Observable<boolean>;
+  invalidPaymentMode: boolean = false;
+  pointToDuplicates = false;
 
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -117,8 +120,27 @@ export class AddEditExpensePage implements OnInit {
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private navController: NavController
   ) { }
+
+  goBack() {
+    if (this.mode === 'add') {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    } else {
+      if (!this.reviewList || this.reviewList.length === 0) {
+        this.navController.back();
+      } else if (this.reviewList && this.activeIndex < this.reviewList.length) {
+        if (+this.activeIndex === 0) {
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        } else {
+          this.goToPrev();
+        }
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    }
+  };
 
   merchantValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.display_name) {
@@ -180,6 +202,24 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  checkIfInvalidPaymentMode() {
+    return this.etxn$.pipe(
+      map(etxn => {
+        const paymentAccount = this.fg.value.paymentMode;
+        const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
+        let isPaymentModeInvalid = false;
+        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+          if (paymentAccount.acc.id !== originalSourceAccountId) {
+            isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
+          } else {
+            isPaymentModeInvalid = (paymentAccount.acc.tentative_balance_amount + etxn.tx.amount) < (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
+          }
+        }
+        return isPaymentModeInvalid;
+      })
+    );
+  }
+
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
@@ -225,6 +265,29 @@ export class AddEditExpensePage implements OnInit {
         return this.getPossibleDuplicates();
       })
     );
+
+    this.duplicates$.pipe(
+      filter(duplicates => duplicates && duplicates.length),
+      take(1)
+    ).subscribe((res) => {
+      this.pointToDuplicates = true;
+      setTimeout(()=> {
+        this.pointToDuplicates = false;
+      }, 3000);
+    });
+  }
+
+  showDuplicates() {
+    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
+    if (duplicateInputContainer) {
+      duplicateInputContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest', 
+        inline: 'start'
+      });
+
+      this.pointToDuplicates = false;
+    }
   }
 
   openSplitExpenseModal(splitType) {
@@ -278,36 +341,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ngOnInit() {
-    this.fg = this.formBuilder.group({
-      currencyObj: [, this.currencyObjValidator],
-      paymentMode: [, Validators.required],
-      project: [],
-      category: [],
-      dateOfSpend: [],
-      merchant: [, this.merchantValidator],
-      purpose: [],
-      report: [],
-      tax: [],
-      taxValue: [],
-      location_1: [],
-      location_2: [],
-      from_dt: [],
-      to_dt: [],
-      flight_journey_travel_class: [],
-      flight_return_travel_class: [],
-      train_travel_class: [],
-      bus_travel_class: [],
-      distance: [],
-      distance_unit: [],
-      custom_inputs: new FormArray([]),
-      add_to_new_report: [],
-      duplicate_detection_reason: [],
-      billable: [],
-      costCenter: []
-    });
-
-    this.setupDuplicateDetection();
-    this.setUpTaxCalculations();
   }
 
   getFormValidationErrors() {
@@ -488,6 +521,8 @@ export class AddEditExpensePage implements OnInit {
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
+
+
     const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings.insta_fyle_settings),
       map(instaFyleSettings => ({
@@ -549,6 +584,11 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.num_files = etxn.dataUrls ? 1 : 0;
             }
           }
+
+          if (orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
+            etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
+          }
+
         } else {
           etxn = {
             tx: {
@@ -811,7 +851,7 @@ export class AddEditExpensePage implements OnInit {
                     // Since in boolean, required validation is kinda unnecessary
                     value: [
                       customField.value,
-                      customField.type !== 'BOOLEAN' && customField.mandatory  && isConnected && Validators.required
+                      customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
                     ]
                   })
                 );
@@ -856,8 +896,8 @@ export class AddEditExpensePage implements OnInit {
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
       switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$, orgSettings: this.offlineService.getOrgSettings()}).pipe(
-          map(({isConnected, orgSettings}) => ({
+        return forkJoin({ isConnected: this.isConnected$, orgSettings: this.offlineService.getOrgSettings() }).pipe(
+          map(({ isConnected, orgSettings }) => ({
             isConnected,
             txnFields,
             orgSettings
@@ -903,11 +943,11 @@ export class AddEditExpensePage implements OnInit {
             'bus_travel_class'
           ].includes(txnFieldKey)) {
             if (this.fg.value.category &&
-               this.fg.value.category.fyle_category && 
-               ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) && 
-               !(orgSettings.projects && orgSettings.projects.enabled && !isConnected)
-               ) {
-              control.setValidators(Validators.required);              
+              this.fg.value.category.fyle_category &&
+              ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
+              !(orgSettings.projects && orgSettings.projects.enabled && !isConnected)
+            ) {
+              control.setValidators(Validators.required);
             }
           } else {
             control.setValidators(isConnected ? Validators.required : null);
@@ -1043,6 +1083,41 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    const currentNavigation = this.router.getCurrentNavigation();
+    const prevNavigation = currentNavigation && currentNavigation.previousNavigation;
+    console.log(prevNavigation);
+
+    this.fg = this.formBuilder.group({
+      currencyObj: [, this.currencyObjValidator],
+      paymentMode: [, Validators.required],
+      project: [],
+      category: [],
+      dateOfSpend: [],
+      merchant: [, this.merchantValidator],
+      purpose: [],
+      report: [],
+      tax: [],
+      taxValue: [],
+      location_1: [],
+      location_2: [],
+      from_dt: [],
+      to_dt: [],
+      flight_journey_travel_class: [],
+      flight_return_travel_class: [],
+      train_travel_class: [],
+      bus_travel_class: [],
+      distance: [],
+      distance_unit: [],
+      custom_inputs: new FormArray([]),
+      add_to_new_report: [],
+      duplicate_detection_reason: [],
+      billable: [],
+      costCenter: []
+    });
+
+    this.setupDuplicateDetection();
+    this.setUpTaxCalculations();
+
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllCategories();
@@ -1318,19 +1393,65 @@ export class AddEditExpensePage implements OnInit {
   //   return invalidControls;
   // }
 
+  reloadCurrentRoute() {
+    let currentUrl = this.router.url;
+    this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
+    });
+  }
+
   saveExpense() {
     const that = this;
 
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense().subscribe(noop);
+    that.checkIfInvalidPaymentMode().pipe(
+      take(1)
+    ).subscribe(invalidPaymentMode => {
+      if (that.fg.valid && !invalidPaymentMode) {
+        if (that.mode === 'add') {
+          that.addExpense().subscribe(()=> {
+            that.goBack();
+          });
+        } else {
+          // to do edit
+          that.editExpense().subscribe(noop);
+        }
       } else {
-        // to do edit
-        that.editExpense().subscribe(noop);
+        that.fg.markAllAsTouched();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
       }
-    } else {
-      that.fg.markAllAsTouched();
-    }
+    });
+  }
+
+  saveAndNewExpense() {
+    let that = this;
+
+    that.checkIfInvalidPaymentMode().pipe(
+      take(1)
+    ).subscribe(invalidPaymentMode => {
+      if (that.fg.valid && !invalidPaymentMode) {
+        if (that.mode === 'add') {
+          that.addExpense().subscribe(() => {
+            this.reloadCurrentRoute();
+          });
+        } else {
+          // to do edit
+          that.editExpense().subscribe(noop);
+        }
+      } else {
+        that.fg.markAllAsTouched();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveExpenseAndGotoNext() {
@@ -1575,43 +1696,44 @@ export class AddEditExpensePage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$);
         }),
         switchMap(etxn => {
-          return this.isConnected$.pipe(switchMap(isConnected => {
-            if (isConnected) {
-              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
-              return policyViolations$.pipe(
-
-                map(this.policyService.getCriticalPolicyRules),
-                switchMap(criticalPolicyViolations => {
-                  if (criticalPolicyViolations.length > 0) {
-                    return throwError(new Error('Critical Policy Violated'));
-                  }
-                  else {
-                    return policyViolations$;
-                  }
-                }),
-                map((policyViolations: any) =>
-                  [this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                  policyViolations.transaction_desired_state &&
-                  policyViolations.transaction_desired_state.action_description]),
-                switchMap(([policyViolations, policyActionDescription]) => {
-                  if (policyViolations.length > 0) {
-                    return throwError({
-                      type: 'policyViolations',
-                      policyViolations,
-                      policyActionDescription,
-                      etxn
-                    });
-                  }
-                  else {
-                    return of({ etxn, comment: null });
-                  }
-                })
-              );
-            } else {
-              return of({ etxn, comment: null });
-            }
-          }));
+          return this.isConnected$.pipe(
+            switchMap(isConnected => {
+              if (isConnected) {
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay());
+                return policyViolations$.pipe(
+                  map(this.policyService.getCriticalPolicyRules),
+                  switchMap(criticalPolicyViolations => {
+                    if (criticalPolicyViolations.length > 0) {
+                      return throwError(new Error('Critical Policy Violated'));
+                    }
+                    else {
+                      return policyViolations$;
+                    }
+                  }),
+                  map((policyViolations: any) =>
+                    [this.policyService.getPolicyRules(policyViolations),
+                    policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description]
+                  ),
+                  switchMap(([policyViolations, policyActionDescription]) => {
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyActionDescription,
+                        etxn
+                      });
+                    }
+                    else {
+                      return of({ etxn, comment: null });
+                    }
+                  })
+                );
+              } else {
+                return of({ etxn, comment: null });
+              }
+            }));
         }),
         catchError(err => {
           if (err.type === 'criticalPolicyViolations') {
