@@ -22,7 +22,6 @@ export class FreshChatService {
     private orgUserSettingsService: OrgUserSettingsService,
     private networkService: NetworkService
   ) {
-    this.setupNetworkWatcher();
   }
 
   private setupNetworkWatcher() {
