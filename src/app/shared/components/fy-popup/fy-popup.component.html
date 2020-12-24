@@ -11,13 +11,17 @@
     <span [innerHTML]="config.message"></span>
   </div>
   <div class="fy-popup--buttons">
-    <button class="fy-popup--button" *ngIf="config.secondaryCta" mat-flat-button color="accent"
-      (click)="secondaryCtaClicked()">
-      {{config.secondaryCta.text}}
-    </button>
-    <button class="fy-popup--button" *ngIf="config.primaryCta" mat-flat-button color="primary"
-      (click)="primaryCtaClicked()">
-      {{config.primaryCta.text}}
-    </button>
+    <ion-toolbar mode="md">
+      <div class="add-edit-advance-request--cta-container">
+        <ion-buttons>
+          <ion-button class="fy-popup--button" *ngIf="config.secondaryCta" (click)="secondaryCtaClicked()" fill="outline" color="fyle-primary">
+              {{config.secondaryCta.text}}
+          </ion-button>
+          <ion-button class="fy-popup--button" *ngIf="config.primaryCta" (click)="primaryCtaClicked()" fill="solid" color="fyle-primary">
+              {{config.primaryCta.text}}
+          </ion-button>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
   </div>
 </div>
