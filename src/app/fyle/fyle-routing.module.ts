@@ -149,6 +149,10 @@ const routes: Routes = [
   {
     path: 'ccc_classified_actions',
     loadChildren: () => import('./ccc-classified-actions/ccc-classified-actions.module').then( m => m.CccClassifiedActionsPageModule)
+  },
+  {
+    path: 'add_edit_trips',
+    loadChildren: () => import('./add-edit-trips/add-edit-trips.module').then( m => m.AddEditTripsPageModule)
   }
 ];
 
