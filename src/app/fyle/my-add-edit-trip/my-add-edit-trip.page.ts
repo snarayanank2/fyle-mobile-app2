@@ -50,6 +50,8 @@ export class MyAddEditTripPage implements OnInit {
   customFieldValues;
   refreshTrips$ = new Subject();
   hasOtherRequestDone: boolean;
+  tripDate;
+  hotelDate;
 
   @ViewChild('formContainer') formContainer: ElementRef;
 
@@ -407,6 +409,19 @@ export class MyAddEditTripPage implements OnInit {
         label: 'Multi City'
       }
     ];
+
+    this.tripDate = {
+      startMin: DateService.addDaysToDate(new Date(), -1),
+      endMin: DateService.addDaysToDate(new Date(), -1),
+      departMin: DateService.addDaysToDate(new Date(), -1),
+      departMax: DateService.addDaysToDate(new Date(), -1)
+    };
+
+    this.hotelDate = {
+      checkInMin: DateService.addDaysToDate(new Date(), -1),
+      checkInMax: DateService.addDaysToDate(new Date(), -1),
+      checkOutMin: DateService.addDaysToDate(new Date(), -1),
+    };
 
     // TODO use formBuilder.group
     this.minDate = moment(new Date()).format('y-MM-DD');
