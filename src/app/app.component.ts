@@ -445,7 +445,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+    if (this.platform.is('mobile')) {
+      this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+    }
 
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
