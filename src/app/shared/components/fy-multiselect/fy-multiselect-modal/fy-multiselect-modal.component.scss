@@ -41,4 +41,13 @@ $list-element-color: #333;
     display: flex;
     flex-direction: column;
   }
+
+  &--cta-container {
+    margin: 12px;
+  }
+
+  &--cta {
+    height: 48px;
+    width: 100%;
+  }
 }

@@ -139,11 +139,15 @@ export class AddEditMileagePage implements OnInit {
       category = expense.tx.org_category.toLowerCase();
     }
     // TODO: Leave for later
-    // if (category === 'activity') {
-    //   showCannotEditActivityDialog();
-
-    //   return;
-    // }
+    if (category === 'activity') {
+      return this.popupService.showPopup({
+        header: 'Cannot Edit Activity',
+        message: 'Editing activity is not supported in mobile app.',
+        primaryCta: {
+          text: 'Cancel'
+        }
+      });
+    }
 
     if (category === 'mileage') {
       this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {

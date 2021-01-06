@@ -215,7 +215,7 @@ export class MyViewReportPage implements OnInit {
     }
 
     if (category === 'activity') {
-      this.popupService.showPopup({
+      return this.popupService.showPopup({
         header: 'Cannot Edit Activity',
         message: 'Editing activity is not supported in mobile app.',
         primaryCta: {
