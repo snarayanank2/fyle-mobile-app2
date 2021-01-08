@@ -9,7 +9,7 @@
       <ion-title>Choose Approvers</ion-title>
     </ion-toolbar>
     <ion-toolbar class="approver-list--form-field-container">
-      <mat-form-field class="approver-list--form-field mat-form-field-no-padding" appearance="outline">
+      <mat-form-field class="selection-modal--form-field approver-list--form-field mat-form-field-no-padding" appearance="outline">
         <input #searchBar id="approver-list--search-input" class="approver-list--search-input" matInput placeholder="Search Approvers">
       </mat-form-field>
     </ion-toolbar>
@@ -21,10 +21,10 @@
     <p class="approver-list--all-approvers">All approvers</p>
     <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
-        <label>
+        <label class="approver-list--details">
           <mat-checkbox color="primary" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
-            {{approver.us.full_name | ellipsis: 14}} ({{approver.us.email | ellipsis: 14}})
+            {{approver.us.full_name}} ({{approver.us.email}})
           </span>
         </label>
       </div>

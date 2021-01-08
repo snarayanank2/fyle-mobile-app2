@@ -387,6 +387,10 @@ export class MyAddEditTripPage implements OnInit {
     return this.customFieldValues;
   }
 
+  getDepartOnMinDate(index) {
+    return index > 0 ? this.cities.value[index - 1].onward_dt : this.startDate.value;
+  }
+
   ngOnInit() {
 
     const id = this.activatedRoute.snapshot.params.id;
@@ -405,6 +409,19 @@ export class MyAddEditTripPage implements OnInit {
         label: 'Multi City'
       }
     ];
+
+    this.tripDate = {
+      startMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      endMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      departMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD')
+    };
+
+    this.hotelDate = {
+      checkInMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkInMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
+      checkOutMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD')
+    };
 
     // TODO use formBuilder.group
     this.minDate = moment(new Date()).format('y-MM-DD');
@@ -660,6 +677,21 @@ export class MyAddEditTripPage implements OnInit {
         if (formValue.cities.length > 1) {
           this.minDate = formValue.cities[formValue.cities.length - 2].onward_dt;
         }
+
+        this.cities.value.forEach((city, index) => {
+          if (city.onward_dt < city[index + 1] && city[index + 1].onward_dt) {
+            this.fg.controls.cities[index]['controls'].onward_dt.valid = false;
+            this.fg.markAllAsTouched();
+            const formContainer = this.formContainer.nativeElement as HTMLElement;
+            if (formContainer) {
+              const invalidElement = formContainer.querySelector('.ng-invalid');
+              invalidElement.scrollIntoView({
+                behavior: 'smooth'
+              });
+            }
+            return;
+          }
+        });
       }
     });
 
