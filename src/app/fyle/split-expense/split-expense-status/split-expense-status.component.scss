@@ -1,5 +1,6 @@
 .split-expense-status {
   &--popup {
+    border-radius: 4px;
     padding: 10px;
   }
 
@@ -11,7 +12,7 @@
   &--success-popup-icon {
     font-size: 100px;
     color: #15cf6a;
-    margin-left: 72px;
+    margin-left: 50px;
   }
 
   &--failure-popup-icon {
@@ -33,6 +34,7 @@
   }
 
   &--primary-cta {
+    height: 48px;
     width: 100%;
   }
 }

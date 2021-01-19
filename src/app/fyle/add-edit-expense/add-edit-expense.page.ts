@@ -40,6 +40,7 @@ import {CorporateCreditCardExpenseSuggestionsService} from '../../core/services/
 import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
 import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 import {TrackingService} from '../../core/services/tracking.service';
+import { RecentlyUsedItemService } from 'src/app/core/services/recently-used-item.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -152,7 +153,8 @@ export class AddEditExpensePage implements OnInit {
     private navController: NavController,
     private corporateCreditCardExpenseSuggestionService: CorporateCreditCardExpenseSuggestionsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private recentlyUsedItemService: RecentlyUsedItemService
   ) {
   }
 
