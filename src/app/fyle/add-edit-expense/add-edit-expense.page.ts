@@ -41,6 +41,7 @@ import {CorporateCreditCardExpenseService} from '../../core/services/corporate-c
 import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
 import {TrackingService} from '../../core/services/tracking.service';
 import { RecentlyUsedItemService } from 'src/app/core/services/recently-used-item.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -154,7 +155,8 @@ export class AddEditExpensePage implements OnInit {
     private corporateCreditCardExpenseSuggestionService: CorporateCreditCardExpenseSuggestionsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private trackingService: TrackingService,
-    private recentlyUsedItemService: RecentlyUsedItemService
+    private recentlyUsedItemService: RecentlyUsedItemService,
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) {
   }
 
@@ -771,10 +773,11 @@ export class AddEditExpensePage implements OnInit {
       eou: eou$,
       instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
-      recentlyUsed: recentlyUsedItem$
+      recentlyUsed: recentlyUsedItem$,
+      recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache'))
     }).pipe(
       map((dependencies) => {
-        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData, recentlyUsed} = dependencies;
+        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData, recentlyUsed, recentCurrency} = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
@@ -799,7 +802,11 @@ export class AddEditExpensePage implements OnInit {
           };
 
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
-            etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency || etxn.tx.currency;
+            if (orgUserSettings.currency_settings.preferred_currency) {
+              etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
+            }
+          } else {
+            etxn.tx.currency = recentCurrency && recentCurrency[0] && recentCurrency[0].shortCode || etxn.tx.currency;
           }
 
           const receiptsData = this.activatedRoute.snapshot.params.receiptsData;
