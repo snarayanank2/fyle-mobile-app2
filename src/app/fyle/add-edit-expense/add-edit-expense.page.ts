@@ -742,6 +742,14 @@ export class AddEditExpensePage implements OnInit {
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
+    let recentlyUsedItem$;
+    if (this.networkService.isOnline()) {
+      recentlyUsedItem$ = this.recentlyUsedItemService.getRecentlyUsedV2();
+    } else {
+      recentlyUsedItem$ = of([]);
+    }
+
+    // const recentlyUsedItem$: any = iif(() => this.networkService.isOnline(),  )
 
     const instaFyleSettings$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings.insta_fyle_settings),
@@ -762,10 +770,11 @@ export class AddEditExpensePage implements OnInit {
       accounts: accounts$,
       eou: eou$,
       instaFyleSettings: instaFyleSettings$,
-      imageData: this.getInstaFyleImageData()
+      imageData: this.getInstaFyleImageData(),
+      recentlyUsed: recentlyUsedItem$
     }).pipe(
       map((dependencies) => {
-        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData} = dependencies;
+        const {orgSettings, orgUserSettings, categories, homeCurrency, accounts, eou, instaFyleSettings, imageData, recentlyUsed} = dependencies;
         const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
@@ -794,6 +803,14 @@ export class AddEditExpensePage implements OnInit {
           }
 
           const receiptsData = this.activatedRoute.snapshot.params.receiptsData;
+
+          if (orgUserSettings && orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled) {
+            const autoFillCategory = categories.filter(res => {
+              return (res.id === recentlyUsed['recent_org_category_ids'][0]);
+            });
+
+            etxn.tx.category = autoFillCategory[0].id;
+          }
 
           if (receiptsData) {
             if (receiptsData.amount) {

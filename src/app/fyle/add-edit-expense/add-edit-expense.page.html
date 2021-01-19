@@ -290,20 +290,18 @@
             </ng-container>
           </ng-container>
 
-
           <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
             <ng-container *ngIf="filteredCategories$|async as categories">
               <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
                 <div class="add-edit-expense--internal-block">
                   <app-fy-select
-                  formControlName="category"
+                    formControlName="category"
                     [label]="fg.controls.category.value? 'Category':'Select Category'"
                     [mandatory]="transactionMandatoyFields.category"
                     [options]="categories"
                     [cacheName]="'recentCategoryList'"
                     [selectModalHeader]="'Choose Category'"
-                    [subheader]="'All Categories'"
-                  >
+                    [subheader]="'All Categories'">
                   </app-fy-select>
                 </div>
                 <div class="add-edit-expense--error" *ngIf="fg.controls.category.touched && !fg.controls.category.valid">
