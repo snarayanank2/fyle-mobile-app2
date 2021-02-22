@@ -9,7 +9,8 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "appium": "appium --chromedriver-executable e2e/chromedriver",
+    "e2e": "tsc --p e2e/protractor.tsconfig.json && protractor e2e/protractor.config.ts --verbose"
   },
   "private": true,
   "dependencies": {
@@ -63,10 +64,11 @@
     "@angular/language-service": "~10.0.0",
     "@capacitor/cli": "2.4.0",
     "@ionic/angular-toolkit": "^2.3.0",
-    "@types/jasmine": "~3.5.0",
+    "@types/jasmine": "^3.5.14",
     "@types/jasminewd2": "~2.0.3",
     "@types/lodash": "^4.14.162",
-    "@types/node": "^12.11.1",
+    "@types/node": "^12.20.4",
+    "appium": "^1.20.2",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -76,7 +78,7 @@
     "karma-jasmine": "~3.3.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "protractor": "~7.0.0",
-    "ts-node": "~8.3.0",
+    "ts-node": "^8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.9.5"
   },
