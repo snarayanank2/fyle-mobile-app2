@@ -41,4 +41,8 @@ export class AppcuesService {
       roles: eou.ou.roles.join()
     });
   }
+
+  identifyPage() {
+    (window as any).Appcues.page();
+  }
 }
