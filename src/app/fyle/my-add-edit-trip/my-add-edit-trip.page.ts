@@ -376,6 +376,13 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   makeTrpFormFromFg(formValue) {
+    formValue.custom_field_values = formValue.custom_field_values.map(custom_field_value => {
+      if (custom_field_value.type === 'DATE') {
+        custom_field_value.value = custom_field_value.value && this.dateService.getUTCDate(new Date(custom_field_value.value));
+      }
+      return custom_field_value;
+    });
+    
     if (this.mode === 'edit') {
       return forkJoin({
         tripRequest: this.tripRequest$
@@ -698,7 +705,7 @@ export class MyAddEditTripPage implements OnInit {
             this.formBuilder.group({
               id: customField.id,
               name: customField.input_name,
-              type: customField.type,
+              type: customField.input_type,
               value: [value, customField.mandatory && Validators.required]
             })
           );
