@@ -28,6 +28,7 @@ import {PushNotificationService} from './core/services/push-notification.service
 import {TrackingService} from './core/services/tracking.service';
 import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
+import {NPSService} from './core/services/nps.service';
 
 const {App} = Plugins;
 
@@ -73,7 +74,8 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private npsService: NPSService,
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
