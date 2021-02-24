@@ -505,6 +505,13 @@ export class AppComponent implements OnInit {
         if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
           this.menuController.swipeGesture(true);
         }
+        if (ev.urlAfterRedirects.indexOf('my_dashboard') > -1) {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (!urlParams.has('delighted')) {
+            urlParams.set('delighted', 'test');
+            (window as any).location.search = urlParams;
+          }
+        }
       }
     });
   }
