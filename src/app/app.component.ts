@@ -505,11 +505,11 @@ export class AppComponent implements OnInit {
         if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
           this.menuController.swipeGesture(true);
         }
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('delighted')) {
-          urlParams.set('delighted', 'test');
-          (window as any).location.search = urlParams;
-        }
+        // const urlParams = new URLSearchParams(window.location.search);
+        // if (!urlParams.has('delighted')) {
+        //   urlParams.set('delighted', 'test');
+        //   (window as any).location.search = urlParams;
+        // }
     }
     });
   }
