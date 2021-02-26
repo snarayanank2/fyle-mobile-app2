@@ -7,6 +7,7 @@ import {map, tap} from 'rxjs/operators';
 import {CorporateCreditCardExpenseService} from '../../../core/services/corporate-credit-card-expense.service';
 import {LoaderService} from '../../../core/services/loader.service';
 import {Router} from '@angular/router';
+import { NPSService } from '../../../core/services/nps.service';
 
 @Component({
   selector: 'app-match-expense-popover',
@@ -26,7 +27,8 @@ export class MatchExpensePopoverComponent implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private npsService: NPSService
   ) { }
 
   ngOnInit() {
@@ -43,6 +45,7 @@ export class MatchExpensePopoverComponent implements OnInit {
   async matchExpense() {
     await this.loaderService.showLoader();
     await this.transactionService.matchCCCExpense(this.expenseId, this.CCCEId).toPromise();
+    this.npsService.startSurvey({Action: 'CCC Classify Transaction'}, {});
     await this.loaderService.hideLoader();
     await this.popoverController.dismiss();
     await this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);

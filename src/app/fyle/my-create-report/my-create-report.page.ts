@@ -16,6 +16,7 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
 import {TrackingService} from '../../core/services/tracking.service';
 import {StorageService} from '../../core/services/storage.service';
 import {NgModel} from '@angular/forms';
+import { NPSService } from '../../core/services/nps.service';
 
 
 @Component({
@@ -53,7 +54,8 @@ export class MyCreateReportPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private tripRequestsService: TripRequestsService,
     private trackingService: TrackingService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private npsService: NPSService
   ) { }
 
   cancel() {
@@ -142,6 +144,7 @@ export class MyCreateReportPage implements OnInit {
           finalize(() => {
             this.saveReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
+            this.npsService.startSurvey({Action: 'Submit Report'}, {});
           })
         ).subscribe(noop);
       }

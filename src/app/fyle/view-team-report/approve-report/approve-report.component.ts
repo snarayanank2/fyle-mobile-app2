@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ReportService } from 'src/app/core/services/report.service';
 import { finalize } from 'rxjs/operators';
+import { NPSService } from '../../../core/services/nps.service';
 
 @Component({
   selector: 'app-approve-report',
@@ -18,7 +19,8 @@ export class ApproveReportComponent implements OnInit {
 
   constructor(
     private popoverController: PopoverController,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private npsService: NPSService
   ) { }
 
   ngOnInit() {
@@ -57,7 +59,10 @@ export class ApproveReportComponent implements OnInit {
 
     this.reportService.approve(this.erpt.rp_id)
     .pipe(
-      finalize(() => this.approveReportLoading = false)
+      finalize(() => {
+        this.approveReportLoading = false;
+        this.npsService.startSurvey({Action: 'Approve Report'}, {});
+      })
     ).subscribe(() => {
       this.popoverController.dismiss({
         goBack: true

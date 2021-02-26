@@ -3,6 +3,7 @@ import {PopoverController} from '@ionic/angular';
 import {ReportService} from 'src/app/core/services/report.service';
 import {finalize} from 'rxjs/operators';
 import {NgModel} from '@angular/forms';
+import { NPSService } from '../../../core/services/nps.service';
 
 @Component({
   selector: 'app-send-back',
@@ -19,7 +20,8 @@ export class SendBackComponent implements OnInit {
 
   constructor(
     private popoverController: PopoverController,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private npsService: NPSService
   ) {
   }
 
@@ -63,7 +65,10 @@ export class SendBackComponent implements OnInit {
       };
 
       this.reportService.inquire(this.erpt.rp_id, statusPayload).pipe(
-        finalize(() => this.sendBackLoading = false)
+        finalize(() => {
+          this.sendBackLoading = false;
+          this.npsService.startSurvey({Action: 'Send Back Report'}, {});
+        })
       ).subscribe(() => {
         this.popoverController.dismiss({
           goBack: true

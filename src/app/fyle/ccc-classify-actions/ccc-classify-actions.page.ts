@@ -11,6 +11,7 @@ import {TransactionService} from '../../core/services/transaction.service';
 import {PopoverController} from '@ionic/angular';
 import {MatchExpensePopoverComponent} from './match-expense-popover/match-expense-popover.component';
 import {LoaderService} from '../../core/services/loader.service';
+import { NPSService } from '../../core/services/nps.service';
 
 @Component({
   selector: 'app-ccc-classify-actions',
@@ -31,7 +32,8 @@ export class CccClassifyActionsPage implements OnInit {
     private popupService: PopupService,
     private popoverController: PopoverController,
     private transactionService: TransactionService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private npsService: NPSService
   ) { }
 
   ngOnInit() {
@@ -79,6 +81,7 @@ export class CccClassifyActionsPage implements OnInit {
     if (popupResult === 'primary') {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.dismissCreditTransaction(cccTxn.id).toPromise();
+      this.npsService.startSurvey({Action: 'CCC Classify Transaction'}, {});
       await this.loaderService.hideLoader();
       this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
     }
@@ -105,6 +108,7 @@ export class CccClassifyActionsPage implements OnInit {
     if (popupResult === 'primary') {
       await this.loaderService.showLoader();
       await this.corporateCreditCardExpenseService.markPersonal(cccTxn.id).toPromise();
+      this.npsService.startSurvey({Action: 'CCC Classify Transaction'}, {});
       await this.loaderService.hideLoader();
       this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
     }
