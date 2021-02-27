@@ -143,8 +143,8 @@ export class MyCreateReportPage implements OnInit {
           })),
           finalize(() => {
             this.saveReportLoading = false;
-            this.router.navigate(['/', 'enterprise', 'my_reports']);
             this.npsService.startSurvey({Action: 'Submit Report'}, {});
+            this.router.navigate(['/', 'enterprise', 'my_reports']);
           })
         ).subscribe(noop);
       }

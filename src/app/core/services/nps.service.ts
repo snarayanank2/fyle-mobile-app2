@@ -19,7 +19,8 @@ export class NPSService {
   }
 
   private canStartSurvey(homeCurrency) {
-    return homeCurrency && homeCurrency === 'USD';
+    // return homeCurrency && homeCurrency === 'USD';
+    return true;
   }
 
   startSurvey(properties, options) {
@@ -60,15 +61,9 @@ export class NPSService {
             Object.assign(delightedOptions, options);
           }
           console.log("Delighted User", delightedOptions);
-          return (window as any).delighted.survey(delightedOptions);
+          return navigator.sendBeacon((window as any).delighted.survey(delightedOptions));
         }
       });
     }
   };
-
-  destory() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
-      (window as any).fcWidget.destory();
-    }
-  }
 }

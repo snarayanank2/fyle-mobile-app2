@@ -381,6 +381,9 @@ export class MyExpensesPage implements OnInit {
     this.loadData$.subscribe(params => {
       console.log(params);
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
+      if (this.activatedRoute.snapshot.queryParams.delighted) {
+        queryParams.delighted = true;
+      }
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams
@@ -408,7 +411,7 @@ export class MyExpensesPage implements OnInit {
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
-    } else {
+    } else if (!this.activatedRoute.snapshot.queryParams.delighted) {
       this.clearFilters();
     }
   }

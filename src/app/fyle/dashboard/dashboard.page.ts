@@ -9,6 +9,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import {NetworkService} from '../../core/services/network.service';
+import { NPSService } from '../../core/services/nps.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,7 +33,8 @@ export class DashboardPage implements OnInit {
     private transactionService: TransactionService,
     private storageService: StorageService,
     private popoverController: PopoverController,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private npsService: NPSService
   ) { }
 
   ionViewWillLeave() {
@@ -131,6 +133,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.npsService.startSurvey({}, {});
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
      shareReplay(1),
     );
