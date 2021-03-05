@@ -61,7 +61,7 @@ export class NPSService {
             Object.assign(delightedOptions, options);
           }
           console.log("Delighted User", delightedOptions);
-          return navigator.sendBeacon((window as any).delighted.survey(delightedOptions));
+          return (window as any).delighted.survey(delightedOptions);
         }
       });
     }
