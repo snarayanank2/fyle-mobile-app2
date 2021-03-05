@@ -96,7 +96,7 @@ export class DashboardPage implements OnInit {
         isCollapsed: false,
         class: 'corporate-cards',
         icon: 'fy-card',
-        subTitle: 'Unclassified Expense'
+        subTitle: 'Transaction'
       },
       {
         title: 'advances',

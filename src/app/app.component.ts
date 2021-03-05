@@ -48,6 +48,7 @@ export class AppComponent implements OnInit {
   allowedActions$: Observable<any>;
   eou;
   device;
+  dividerTitle: string;
 
   constructor(
     private platform: Platform,
@@ -269,12 +270,6 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_reports']
           },
           {
-            title: 'Advances',
-            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
-            icon: 'fy-advances-new',
-            route: ['/', 'enterprise', 'my_advances']
-          },
-          {
             title: 'Trips',
             // tslint:disable-next-line: max-line-length
             isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
@@ -282,22 +277,10 @@ export class AppComponent implements OnInit {
             route: ['/', 'enterprise', 'my_trips']
           },
           {
-            title: 'Delegated Accounts',
-            isVisible: isDelegatee && !this.isSwitchedToDelegator,
-            icon: 'fy-delegate-switch',
-            route: ['/', 'enterprise', 'delegated_accounts']
-          },
-          {
-            title: 'Switch to own account',
-            isVisible: this.isSwitchedToDelegator,
-            icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}]
-          },
-          {
-            title: 'Profile',
-            isVisible: true,
-            icon: 'fy-profile-new',
-            route: ['/', 'enterprise', 'my_profile']
+            title: 'Advances',
+            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
+            icon: 'fy-advances-new',
+            route: ['/', 'enterprise', 'my_advances']
           },
           {
             title: 'Team Reports',
@@ -330,17 +313,35 @@ export class AppComponent implements OnInit {
             openHelp: true
           },
           {
-            title: 'Help',
+            title: 'Settings',
             isVisible: true,
-            icon: 'fy-help-new',
-            route: ['/', 'enterprise', 'help']
+            icon: 'fy-settings',
+            route: ['/', 'enterprise', 'my_profile']
           },
           {
-            title: 'Switch Accounts',
+            title: 'Switch Organization',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}]
           },
+          {
+            title: 'Delegated Accounts',
+            isVisible: isDelegatee && !this.isSwitchedToDelegator,
+            icon: 'fy-delegate-switch',
+            route: ['/', 'enterprise', 'delegated_accounts']
+          },
+          {
+            title: 'Switch back to my account',
+            isVisible: this.isSwitchedToDelegator,
+            icon: 'fy-switch',
+            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}]
+          },
+          {
+            title: 'Help',
+            isVisible: true,
+            icon: 'fy-help-new',
+            route: ['/', 'enterprise', 'help']
+          }
         ];
       } else {
         this.sideMenuList = [
@@ -372,13 +373,6 @@ export class AppComponent implements OnInit {
             disabled: true
           },
           {
-            title: 'Advances',
-            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
-            icon: 'fy-advances-new',
-            route: ['/', 'enterprise', 'my_advances'],
-            disabled: true
-          },
-          {
             title: 'Trips',
             // tslint:disable-next-line: max-line-length
             isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
@@ -387,24 +381,11 @@ export class AppComponent implements OnInit {
             disabled: true
           },
           {
-            title: 'Delegated Accounts',
-            isVisible: isDelegatee && !this.isSwitchedToDelegator,
-            icon: 'fy-delegate-switch',
-            route: ['/', 'enterprise', 'delegated_accounts'],
+            title: 'Advances',
+            isVisible: orgSettings.advances.enabled || orgSettings.advance_requests.enabled,
+            icon: 'fy-advances-new',
+            route: ['/', 'enterprise', 'my_advances'],
             disabled: true
-          },
-          {
-            title: 'Switch to own account',
-            isVisible: this.isSwitchedToDelegator,
-            icon: 'fy-switch',
-            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}],
-            disabled: true
-          },
-          {
-            title: 'Profile',
-            isVisible: true,
-            icon: 'fy-profile-new',
-            route: ['/', 'enterprise', 'my_profile'],
           },
           {
             title: 'Team Reports',
@@ -441,20 +422,53 @@ export class AppComponent implements OnInit {
             disabled: true
           },
           {
-            title: 'Help',
+            title: 'Settings',
             isVisible: true,
-            icon: 'fy-help-new',
-            route: ['/', 'enterprise', 'help'],
-            disabled: true
+            icon: 'fy-settings',
+            route: ['/', 'enterprise', 'my_profile'],
           },
           {
-            title: 'Switch Accounts',
+            title: 'Switch Organization',
             isVisible: (orgs.length > 1),
             icon: 'fy-switch-new',
             route: ['/', 'auth', 'switch_org', {choose: true}],
             disabled: true
           },
+          {
+            title: 'Delegated Accounts',
+            isVisible: isDelegatee && !this.isSwitchedToDelegator,
+            icon: 'fy-delegate-switch',
+            route: ['/', 'enterprise', 'delegated_accounts'],
+            disabled: true
+          },
+          {
+            title: 'Switch back to my account',
+            isVisible: this.isSwitchedToDelegator,
+            icon: 'fy-switch',
+            route: ['/', 'enterprise', 'delegated_accounts', {switchToOwn: true}],
+            disabled: true
+          },
+          {
+            title: 'Help',
+            isVisible: true,
+            icon: 'fy-help-new',
+            route: ['/', 'enterprise', 'help'],
+            disabled: true
+          }
         ];
+      }
+
+      /* These below conditions have been added to place the divider in the sidenav:-
+        - if 'Advances' is enabled, the divider will be placed under 'Advances',
+        - else if 'Trips' is enabled, the divider will be placed under 'Trips',
+        - else it will be placed under 'Reports'
+      */
+      this.dividerTitle = 'Reports';
+      if (orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
+        this.dividerTitle = 'Trips';
+      }
+      if (orgSettings.advances.enabled || orgSettings.advance_requests.enabled) {
+        this.dividerTitle = 'Advances';
       }
     });
   }
