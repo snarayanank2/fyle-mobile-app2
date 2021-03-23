@@ -77,6 +77,13 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       token: from(this.tokenService.getAccessToken()),
       deviceInfo: from(this.deviceService.getDeviceInfo())
     }).pipe(
+        map(({token, deviceInfo}) => {
+          if(this.expiringSoon(token)) {
+            return {token: this.refreshAccessToken(), deviceInfo};
+          } else {
+            return {token, deviceInfo};
+          }
+        }),
         concatMap(({token, deviceInfo}) => {
           if (token && this.secureUrl(request.url)) {
             request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
