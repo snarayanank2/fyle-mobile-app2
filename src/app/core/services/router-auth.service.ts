@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap, switchMap, map } from 'rxjs/operators';
+import { tap, switchMap, map, concatMap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -51,6 +51,18 @@ export class RouterAuthService {
     await this.storageService.delete('user');
     await this.storageService.delete('role');
     await this.tokenService.setRefreshToken(refreshToken);
+  }
+
+  refreshAccessToken() {
+    return from(this.tokenService.getRefreshToken()).pipe(
+      concatMap(
+        refreshToken => this.fetchAccessToken(refreshToken)
+      ),
+      concatMap(
+        authResponse => this.newAccessToken(authResponse.access_token)
+      ),
+      concatMap(() => from(this.tokenService.getAccessToken()))
+    );
   }
 
   async setClusterDomain(domain) {

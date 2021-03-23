@@ -1,4 +1,6 @@
 import {Injectable} from '@angular/core';
+import * as moment from 'moment';
+import { JwtHelperService } from './jwt-helper.service';
 import {StorageService} from './storage.service';
 import {UserEventService} from './user-event.service';
 
@@ -9,7 +11,8 @@ export class TokenService {
 
   constructor(
     private storageService: StorageService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private jwtHelperService: JwtHelperService
   ) {
     this.userEventService.onLogout(() => {
       this.resetRefreshToken();
@@ -53,5 +56,17 @@ export class TokenService {
 
   resetRefreshToken() {
     return this.storageService.delete('X-REFRESH-TOKEN');
+  }
+
+  expiringSoon(accessToken: string): boolean {
+    try {
+      const expiryDate = moment(this.jwtHelperService.getExpirationDate(accessToken));
+      const now = moment(new Date());
+      const differenceSeconds = expiryDate.diff(now, 'second');
+      const maxRefreshDifferenceSeconds = 0.1 * 60;
+      return differenceSeconds < maxRefreshDifferenceSeconds;
+    } catch (err) {
+      return true;
+    }
   }
 }

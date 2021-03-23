@@ -3,7 +3,7 @@ import {Platform, MenuController, AlertController} from '@ionic/angular';
 import {SplashScreen} from '@ionic-native/splash-screen/ngx';
 import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {forkJoin, from, iif, of, concat, Observable} from 'rxjs';
-import {map, switchMap, shareReplay} from 'rxjs/operators';
+import {map, switchMap, shareReplay, withLatestFrom} from 'rxjs/operators';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from 'src/app/core/services/auth.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -28,6 +28,7 @@ import {PushNotificationService} from './core/services/push-notification.service
 import {TrackingService} from './core/services/tracking.service';
 import {LoginInfoService} from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
+import { TokenService } from './core/services/token.service';
 
 const {App} = Plugins;
 
@@ -74,7 +75,8 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private tokenService: TokenService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -201,8 +203,19 @@ export class AppComponent implements OnInit {
       })
     );
 
-    this.isConnected$.pipe(
-      switchMap(isConnected => {
+    from(this.tokenService.getAccessToken()).pipe(
+      map(token => {
+        return this.tokenService.expiringSoon(token);
+      }),
+      switchMap((expiring) => {
+        if (expiring) {
+          return this.routerAuthService.refreshAccessToken();
+        } else {
+          return of(null);
+        }
+      }),
+      withLatestFrom(this.isConnected$),
+      switchMap(([abc, isConnected]) => {
         return forkJoin({
           orgs: orgs$,
           currentOrg: currentOrg$,

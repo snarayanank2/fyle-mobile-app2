@@ -1,7 +1,7 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {forkJoin, from, fromEvent, noop, Observable} from 'rxjs';
-import {distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, take} from 'rxjs/operators';
+import {forkJoin, from, fromEvent, noop, Observable, of} from 'rxjs';
+import {concatMap, distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, take, tap} from 'rxjs/operators';
 import {Org} from 'src/app/core/models/org.model';
 import {LoaderService} from 'src/app/core/services/loader.service';
 import {OfflineService} from 'src/app/core/services/offline.service';
@@ -14,6 +14,8 @@ import {UserEventService} from 'src/app/core/services/user-event.service';
 import {globalCacheBusterNotifier} from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 
 @Component({
   selector: 'app-swicth-org',
@@ -40,7 +42,9 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private tokenService: TokenService,
+    private routerAuthService: RouterAuthService
   ) { }
 
   ngOnInit() {
@@ -89,7 +93,22 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
   }
 
   async proceed() {
-    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+    const offlineData$ = from(this.tokenService.getAccessToken()).pipe(
+      map(token => {
+        return this.tokenService.expiringSoon(token);
+      }),
+      switchMap((expiring) => {
+        if (expiring) {
+          return this.routerAuthService.refreshAccessToken();
+        } else {
+          return of(null);
+        }
+      }),
+      switchMap(() => {
+        return this.offlineService.load();
+      }),
+      shareReplay(1)
+    )
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
