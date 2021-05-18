@@ -2097,7 +2097,7 @@ export class AddEditExpensePage implements OnInit {
         });
 
         let locations;
-        if (this.fg.value.location_1 && this.fg.value.location_2) {
+        if ((this.fg.value.location_1 && this.fg.value.location_2) || this.fg.value.location_2) {
           locations = [
             this.fg.value.location_1,
             this.fg.value.location_2
